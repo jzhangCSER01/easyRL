@@ -8,7 +8,6 @@ class BespokeAgent:
 
     def decide(self, observation):  # 决策
         position, velocity = observation
-        print(type(velocity))
         lb = min(-0.09 * (position + 0.25) ** 2 + 0.03, 0.3 * (position + 0.9) ** 4 - 0.008)
         ub = -0.07 * (position + 0.38) ** 2 + 0.07
         if lb < velocity < ub:
@@ -33,22 +32,22 @@ def play_montecarlo(env, agent, render=False, train=False):
     :return: episode_reward，是 float 型的数值，表示智能体与环境交互一个回合的回合总奖励。
     """
     episode_reward = 0. # 记录回合总奖励，初始化为 0
-    observation = env.reset()   # 重置游戏环境，开始新回合
+    observation, info = env.reset()   # 重置游戏环境，开始新回合
     while True: # 不断循环，直到回合结束
         if render:  # 判断是否显示
             env.render()    # 显示图形界面，图形界面可以用 env.close() 语句关闭
         action = agent.decide(observation)
-        next_observation, reward, done, _ = env.step(action)    # 执行动作
+        next_observation, reward, terminated, truncated, info = env.step(action)    # 执行动作
         episode_reward += reward    # 收集回合奖励
         if train:   # 判断是否训练智能体
-            agent.learn(observation, action, reward, done)  # 学习
-        if done:    # 回合结束，跳出循环
+            agent.learn(observation, action, reward, terminated, truncated)  # 学习
+        if terminated or truncated:    # 回合结束，跳出循环
             break
         observation = next_observation
     return episode_reward   # 返回回合总奖励
 
 
-env = gym.make('MountainCar-v0')
+env = gym.make('MountainCar-v0', render_mode='human')
 agent = BespokeAgent(env)
 print(f'观测空间 = {env.observation_space}')
 print(f'动作空间 = {env.action_space}')
