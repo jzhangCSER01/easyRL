@@ -13,7 +13,7 @@ env.reset() # 重置一个回合
 for _ in range(1000):
     env.render()    # 显示图形界面
     action = env.action_space.sample()  # 从动作空间中随机选取一个动作
-    results = env.step(action)    # 用于提交动作，括号内是具体的动作
+    observation, reward, terminated, truncated, info = env.step(action)    # 用于提交动作，括号内是具体的动作
     time.sleep(0.02)
-    print(results[0])
+    print(observation)
 env.close() # 关闭环境
